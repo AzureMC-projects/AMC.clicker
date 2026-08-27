@@ -29,6 +29,16 @@ namespace AMCClicker
         private HotkeySettings hotkeySettings;
         private TabControl tabControl;
         private Label statusLabel;
+        private int recordedClickCount = 0;
+
+        // PS5-Inspired Colors
+        private static readonly System.Drawing.Color PS5_DarkBg = System.Drawing.Color.FromArgb(10, 14, 39);
+        private static readonly System.Drawing.Color PS5_MediumBg = System.Drawing.Color.FromArgb(20, 28, 70);
+        private static readonly System.Drawing.Color PS5_LightBg = System.Drawing.Color.FromArgb(30, 40, 100);
+        private static readonly System.Drawing.Color PS5_Accent = System.Drawing.Color.FromArgb(0, 180, 220);
+        private static readonly System.Drawing.Color PS5_AccentDark = System.Drawing.Color.FromArgb(0, 150, 200);
+        private static readonly System.Drawing.Color PS5_Text = System.Drawing.Color.FromArgb(220, 230, 240);
+        private static readonly System.Drawing.Color PS5_TextMuted = System.Drawing.Color.FromArgb(140, 150, 170);
 
         public MainForm()
         {
@@ -40,23 +50,35 @@ namespace AMCClicker
             this.Text = "AMC Clicker";
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.Size = new System.Drawing.Size(650, 800);
+            this.Size = new System.Drawing.Size(700, 900);
             this.StartPosition = FormStartPosition.CenterScreen;
+            this.BackColor = PS5_DarkBg;
+            this.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Regular);
             
             InitializeUI();
         }
 
         private void InitializeUI()
         {
-            tabControl = new TabControl { Dock = DockStyle.Fill, Padding = new System.Drawing.Point(10, 10) };
+            tabControl = new TabControl 
+            { 
+                Dock = DockStyle.Fill, 
+                Padding = new System.Drawing.Point(0, 0),
+                BackColor = PS5_DarkBg,
+                ForeColor = PS5_Text
+            };
+            tabControl.Selecting += (s, e) => e.TabPage.BackColor = PS5_DarkBg;
             
-            // Main Tab
+            // Style tab pages
             var mainTab = new TabPage("Clicker");
+            mainTab.BackColor = PS5_DarkBg;
+            mainTab.ForeColor = PS5_Text;
             mainTab.Controls.Add(CreateMainTabContent());
             tabControl.TabPages.Add(mainTab);
 
-            // Settings Tab
             var settingsTab = new TabPage("Settings");
+            settingsTab.BackColor = PS5_DarkBg;
+            settingsTab.ForeColor = PS5_Text;
             settingsTab.Controls.Add(CreateSettingsTabContent());
             tabControl.TabPages.Add(settingsTab);
 
@@ -65,179 +87,152 @@ namespace AMCClicker
 
         private Control CreateMainTabContent()
         {
-            var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(15), AutoScroll = true };
+            var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20), AutoScroll = true, BackColor = PS5_DarkBg };
             
             // Title
             var titleLabel = new Label 
             { 
-                Text = "AMC Clicker - Auto Clicker",
-                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold),
+                Text = "AMC CLICKER",
+                Font = new System.Drawing.Font("Segoe UI", 24, System.Drawing.FontStyle.Bold),
+                ForeColor = PS5_Accent,
                 AutoSize = true,
-                Margin = new Padding(0, 0, 0, 20)
+                Margin = new Padding(0, 0, 0, 30)
             };
             panel.Controls.Add(titleLabel);
 
-            // Click Rate
-            panel.Controls.Add(new Label { Text = "Clicks per second:", Location = new System.Drawing.Point(10, 50), AutoSize = true });
-            var clickRateInput = new NumericUpDown 
-            { 
-                Minimum = 1, 
-                Maximum = 100, 
-                Value = 10,
-                Location = new System.Drawing.Point(180, 50),
-                Width = 100
-            };
-            panel.Controls.Add(clickRateInput);
+            // Status Card
+            statusLabel = CreateCard(10, 50, 650, 60, "Ready");
+            statusLabel.Font = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Bold);
+            statusLabel.Text = "Status: Ready";
+            statusLabel.ForeColor = System.Drawing.Color.LimeGreen;
+            statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            panel.Controls.Add(statusLabel);
 
-            // Click Delay
-            panel.Controls.Add(new Label { Text = "Delay between clicks (ms):", Location = new System.Drawing.Point(10, 90), AutoSize = true });
-            var delayInput = new NumericUpDown 
-            { 
-                Minimum = 10, 
-                Maximum = 5000, 
-                Value = 100,
-                Location = new System.Drawing.Point(180, 90),
-                Width = 100
-            };
-            panel.Controls.Add(delayInput);
+            // Settings Section
+            var settingsTitleLabel = CreateSectionLabel(10, 130, "Click Settings");
+            panel.Controls.Add(settingsTitleLabel);
 
-            // Number of Clicks
-            panel.Controls.Add(new Label { Text = "Number of clicks (0 = infinite):", Location = new System.Drawing.Point(10, 130), AutoSize = true });
-            var numClicksInput = new NumericUpDown 
-            { 
-                Minimum = 0, 
-                Maximum = 10000, 
-                Value = 100,
-                Location = new System.Drawing.Point(180, 130),
-                Width = 100
-            };
-            panel.Controls.Add(numClicksInput);
+            // Click Rate Input
+            panel.Controls.Add(new Label { Text = "Clicks per second:", Location = new System.Drawing.Point(20, 165), AutoSize = true, ForeColor = PS5_Text, Font = new System.Drawing.Font("Segoe UI", 10) });
+            var clickRateInput = CreateModernInput(250, 160, 80, "10");
+            var clickRateNum = new NumericUpDown { Minimum = 1, Maximum = 100, Value = 10, Location = new System.Drawing.Point(250, 160), Width = 80, Height = 30, BackColor = PS5_LightBg, ForeColor = PS5_Text };
+            clickRateNum.Text = "10";
+            panel.Controls.Add(clickRateNum);
+
+            // Delay Input
+            panel.Controls.Add(new Label { Text = "Delay (ms):", Location = new System.Drawing.Point(20, 205), AutoSize = true, ForeColor = PS5_Text, Font = new System.Drawing.Font("Segoe UI", 10) });
+            var delayNum = new NumericUpDown { Minimum = 10, Maximum = 5000, Value = 100, Location = new System.Drawing.Point(250, 200), Width = 80, Height = 30, BackColor = PS5_LightBg, ForeColor = PS5_Text };
+            delayNum.Text = "100";
+            panel.Controls.Add(delayNum);
+
+            // Number of Clicks Input
+            panel.Controls.Add(new Label { Text = "Number of clicks (0=∞):", Location = new System.Drawing.Point(20, 245), AutoSize = true, ForeColor = PS5_Text, Font = new System.Drawing.Font("Segoe UI", 10) });
+            var numClicksNum = new NumericUpDown { Minimum = 0, Maximum = 10000, Value = 100, Location = new System.Drawing.Point(250, 240), Width = 80, Height = 30, BackColor = PS5_LightBg, ForeColor = PS5_Text };
+            numClicksNum.Text = "100";
+            panel.Controls.Add(numClicksNum);
+
+            // Action Section
+            var actionTitleLabel = CreateSectionLabel(10, 290, "Actions");
+            panel.Controls.Add(actionTitleLabel);
 
             // Start Button
-            var startBtn = new Button 
-            { 
-                Text = $"Start Clicking ({hotkeySettings.StartClickingHotkey})", 
-                Location = new System.Drawing.Point(10, 180),
-                Width = 160,
-                Height = 40
-            };
-            startBtn.Click += (s, e) => StartClicking((int)clickRateInput.Value, (int)delayInput.Value, (int)numClicksInput.Value);
+            var startBtn = CreateModernButton("START CLICKING", 20, 325, 150, 50, PS5_Accent);
+            startBtn.Click += (s, e) => StartClicking((int)clickRateNum.Value, (int)delayNum.Value, (int)numClicksNum.Value);
             panel.Controls.Add(startBtn);
 
             // Stop Button
-            var stopBtn = new Button 
-            { 
-                Text = $"Stop Clicking ({hotkeySettings.StopClickingHotkey})", 
-                Location = new System.Drawing.Point(180, 180),
-                Width = 160,
-                Height = 40
-            };
+            var stopBtn = CreateModernButton("STOP", 180, 325, 150, 50, System.Drawing.Color.FromArgb(220, 50, 50));
             stopBtn.Click += (s, e) => StopClicking();
             panel.Controls.Add(stopBtn);
 
+            // Recording Section
+            var recordTitleLabel = CreateSectionLabel(10, 385, "Recording");
+            panel.Controls.Add(recordTitleLabel);
+
             // Record Button
-            var recordBtn = new Button 
-            { 
-                Text = $"Start Recording ({hotkeySettings.StartRecordingHotkey})", 
-                Location = new System.Drawing.Point(10, 230),
-                Width = 160,
-                Height = 40,
-                BackColor = System.Drawing.Color.LightGray
-            };
+            var recordBtn = CreateModernButton("START RECORDING", 20, 420, 150, 50, PS5_Accent);
             recordBtn.Click += (s, e) => StartRecording();
             panel.Controls.Add(recordBtn);
 
             // Stop Recording Button
-            var stopRecordBtn = new Button 
-            { 
-                Text = $"Stop Recording ({hotkeySettings.StopRecordingHotkey})", 
-                Location = new System.Drawing.Point(180, 230),
-                Width = 160,
-                Height = 40,
-                BackColor = System.Drawing.Color.LightGray
-            };
+            var stopRecordBtn = CreateModernButton("STOP", 180, 420, 150, 50, System.Drawing.Color.FromArgb(220, 50, 50));
             stopRecordBtn.Click += (s, e) => StopRecording();
             panel.Controls.Add(stopRecordBtn);
 
             // Playback Button
-            var playbackBtn = new Button 
-            { 
-                Text = $"Playback Recording ({hotkeySettings.PlaybackRecordingHotkey})", 
-                Location = new System.Drawing.Point(10, 280),
-                Width = 160,
-                Height = 40
-            };
+            var playbackBtn = CreateModernButton("PLAYBACK", 20, 480, 150, 50, System.Drawing.Color.FromArgb(100, 200, 50));
             playbackBtn.Click += (s, e) => PlaybackRecording();
             panel.Controls.Add(playbackBtn);
 
-            // Clear Recording Button
-            var clearBtn = new Button 
-            { 
-                Text = "Clear Recording", 
-                Location = new System.Drawing.Point(180, 280),
-                Width = 160,
-                Height = 40
-            };
+            // Clear Button
+            var clearBtn = CreateModernButton("CLEAR", 180, 480, 150, 50, System.Drawing.Color.FromArgb(100, 100, 100));
             clearBtn.Click += (s, e) => ClearRecording();
             panel.Controls.Add(clearBtn);
 
-            // Status Label
-            statusLabel = new Label 
+            // Recording Info
+            var recordInfoLabel = new Label 
             { 
-                Text = "Status: Ready",
-                Location = new System.Drawing.Point(10, 330),
+                Text = $"Recorded Clicks: {recordedClickCount}",
+                Location = new System.Drawing.Point(20, 545),
                 AutoSize = true,
-                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold),
-                ForeColor = System.Drawing.Color.Green
+                ForeColor = PS5_TextMuted,
+                Font = new System.Drawing.Font("Segoe UI", 10)
             };
-            panel.Controls.Add(statusLabel);
+            this.Tag = recordInfoLabel;
+            panel.Controls.Add(recordInfoLabel);
 
-            // Instructions
-            var instructionsLabel = new Label 
+            // Hotkey Info
+            var hotkeyTitleLabel = CreateSectionLabel(10, 575, "Hotkeys");
+            panel.Controls.Add(hotkeyTitleLabel);
+
+            var hotkeyInfoLabel = new Label 
             { 
-                Text = $"Global Hotkeys:\n{hotkeySettings.StartClickingHotkey} - Start Clicking\n{hotkeySettings.StopClickingHotkey} - Stop Clicking\n{hotkeySettings.StartRecordingHotkey} - Start Recording\n{hotkeySettings.StopRecordingHotkey} - Stop Recording\n{hotkeySettings.PlaybackRecordingHotkey} - Playback Recording\n{hotkeySettings.ExitApplicationHotkey} - Exit App\n\nTip: Customize hotkeys in Settings tab!",
-                Location = new System.Drawing.Point(10, 370),
+                Text = $"F6: Start | F7: Stop\nF8: Record | F9: Stop Rec\nF10: Playback | ESC: Exit\n\nCustomize in Settings tab →",
+                Location = new System.Drawing.Point(20, 610),
                 AutoSize = true,
-                Font = new System.Drawing.Font("Arial", 9),
-                BackColor = System.Drawing.Color.WhiteSmoke,
-                Padding = new Padding(5)
+                ForeColor = PS5_TextMuted,
+                Font = new System.Drawing.Font("Segoe UI", 9)
             };
-            panel.Controls.Add(instructionsLabel);
+            panel.Controls.Add(hotkeyInfoLabel);
 
             return panel;
         }
 
         private Control CreateSettingsTabContent()
         {
-            var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(15), AutoScroll = true };
+            var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20), AutoScroll = true, BackColor = PS5_DarkBg };
             
             var titleLabel = new Label 
             { 
-                Text = "Hotkey Settings",
-                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold),
+                Text = "HOTKEY SETTINGS",
+                Font = new System.Drawing.Font("Segoe UI", 20, System.Drawing.FontStyle.Bold),
+                ForeColor = PS5_Accent,
                 AutoSize = true,
-                Margin = new Padding(0, 0, 0, 20)
+                Margin = new Padding(0, 0, 0, 30)
             };
             panel.Controls.Add(titleLabel);
 
             int yPos = 50;
-            int spacing = 40;
+            int spacing = 50;
 
-            // Create hotkey setting inputs
             var hotkeyInputs = new Dictionary<string, ComboBox>();
 
             void AddHotkeySetting(string label, Keys currentKey, int y, string settingKey)
             {
-                panel.Controls.Add(new Label { Text = $"{label}:", Location = new System.Drawing.Point(10, y), AutoSize = true });
+                var labelControl = new Label { Text = label, Location = new System.Drawing.Point(20, y), AutoSize = true, ForeColor = PS5_Text, Font = new System.Drawing.Font("Segoe UI", 11) };
+                panel.Controls.Add(labelControl);
                 
                 var combo = new ComboBox 
                 { 
-                    Location = new System.Drawing.Point(200, y),
-                    Width = 150,
-                    DropDownStyle = ComboBoxStyle.DropDownList
+                    Location = new System.Drawing.Point(250, y),
+                    Width = 200,
+                    Height = 35,
+                    DropDownStyle = ComboBoxStyle.DropDownList,
+                    BackColor = PS5_LightBg,
+                    ForeColor = PS5_Text,
+                    Font = new System.Drawing.Font("Segoe UI", 10)
                 };
 
-                // Populate with common function keys
                 var keys = new Keys[] { Keys.F1, Keys.F2, Keys.F3, Keys.F4, Keys.F5, Keys.F6, Keys.F7, Keys.F8, Keys.F9, Keys.F10, Keys.F11, Keys.F12, Keys.Escape };
                 foreach (var k in keys)
                 {
@@ -261,20 +256,12 @@ namespace AMCClicker
             AddHotkeySetting("Playback Recording", hotkeySettings.PlaybackRecordingHotkey, yPos, nameof(HotkeySettings.PlaybackRecordingHotkey));
             yPos += spacing;
             AddHotkeySetting("Exit Application", hotkeySettings.ExitApplicationHotkey, yPos, nameof(HotkeySettings.ExitApplicationHotkey));
-            yPos += spacing;
+            yPos += spacing + 20;
 
             // Save Button
-            var saveBtn = new Button 
-            { 
-                Text = "Save Settings", 
-                Location = new System.Drawing.Point(10, yPos + 20),
-                Width = 120,
-                Height = 40,
-                BackColor = System.Drawing.Color.LightGreen
-            };
+            var saveBtn = CreateModernButton("SAVE SETTINGS", 20, yPos, 200, 50, PS5_Accent);
             saveBtn.Click += (s, e) =>
             {
-                // Update hotkey settings
                 hotkeySettings.StartClickingHotkey = (Keys)hotkeyInputs[nameof(HotkeySettings.StartClickingHotkey)].SelectedItem;
                 hotkeySettings.StopClickingHotkey = (Keys)hotkeyInputs[nameof(HotkeySettings.StopClickingHotkey)].SelectedItem;
                 hotkeySettings.StartRecordingHotkey = (Keys)hotkeyInputs[nameof(HotkeySettings.StartRecordingHotkey)].SelectedItem;
@@ -282,24 +269,15 @@ namespace AMCClicker
                 hotkeySettings.PlaybackRecordingHotkey = (Keys)hotkeyInputs[nameof(HotkeySettings.PlaybackRecordingHotkey)].SelectedItem;
                 hotkeySettings.ExitApplicationHotkey = (Keys)hotkeyInputs[nameof(HotkeySettings.ExitApplicationHotkey)].SelectedItem;
 
-                // Save to file
                 SettingsManager.SaveHotkeySettings(hotkeySettings);
-                
-                // Re-register hotkeys
                 SetupHotkeys();
                 
-                MessageBox.Show("Settings saved! Hotkeys have been updated.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Settings saved! Hotkeys updated.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
             panel.Controls.Add(saveBtn);
 
             // Reset Button
-            var resetBtn = new Button 
-            { 
-                Text = "Reset to Defaults", 
-                Location = new System.Drawing.Point(140, yPos + 20),
-                Width = 150,
-                Height = 40
-            };
+            var resetBtn = CreateModernButton("RESET TO DEFAULTS", 230, yPos, 200, 50, System.Drawing.Color.FromArgb(100, 100, 100));
             resetBtn.Click += (s, e) =>
             {
                 hotkeySettings = new HotkeySettings();
@@ -320,6 +298,68 @@ namespace AMCClicker
             return panel;
         }
 
+        private Label CreateSectionLabel(int x, int y, string text)
+        {
+            var label = new Label 
+            { 
+                Text = text.ToUpper(),
+                Location = new System.Drawing.Point(x, y),
+                AutoSize = true,
+                ForeColor = PS5_Accent,
+                Font = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Bold)
+            };
+            return label;
+        }
+
+        private Label CreateCard(int x, int y, int width, int height, string text)
+        {
+            var card = new Label 
+            { 
+                Location = new System.Drawing.Point(x, y),
+                Size = new System.Drawing.Size(width, height),
+                Text = text,
+                BackColor = PS5_LightBg,
+                ForeColor = PS5_Text,
+                Padding = new Padding(15),
+                BorderStyle = BorderStyle.None
+            };
+            return card;
+        }
+
+        private Button CreateModernButton(string text, int x, int y, int width, int height, System.Drawing.Color accentColor)
+        {
+            var btn = new Button 
+            { 
+                Text = text,
+                Location = new System.Drawing.Point(x, y),
+                Size = new System.Drawing.Size(width, height),
+                BackColor = accentColor,
+                ForeColor = System.Drawing.Color.White,
+                Font = new System.Drawing.Font("Segoe UI", 11, System.Drawing.FontStyle.Bold),
+                FlatStyle = FlatStyle.Flat
+            };
+            btn.FlatAppearance.BorderSize = 0;
+            btn.FlatAppearance.MouseDownBackColor = accentColor;
+            btn.FlatAppearance.MouseOverBackColor = ControlPaint.Light(accentColor, 0.1f);
+            return btn;
+        }
+
+        private TextBox CreateModernInput(int x, int y, int width, string text)
+        {
+            var input = new TextBox 
+            { 
+                Location = new System.Drawing.Point(x, y),
+                Width = width,
+                Height = 30,
+                Text = text,
+                BackColor = PS5_LightBg,
+                ForeColor = PS5_Text,
+                Font = new System.Drawing.Font("Segoe UI", 10),
+                BorderStyle = BorderStyle.None
+            };
+            return input;
+        }
+
         private void SetupHotkeys()
         {
             // Global hotkeys require Windows-specific interop
@@ -333,14 +373,14 @@ namespace AMCClicker
             if (!autoClickerService.IsRunning)
             {
                 autoClickerService.Start(clicksPerSecond, delay, numClicks);
-                UpdateStatus("Clicking...");
+                UpdateStatus("Running...", System.Drawing.Color.LimeGreen);
             }
         }
 
         private void StopClicking()
         {
             autoClickerService.Stop();
-            UpdateStatus("Stopped");
+            UpdateStatus("Stopped", System.Drawing.Color.FromArgb(220, 150, 50));
         }
 
         private void StartRecording()
@@ -348,9 +388,10 @@ namespace AMCClicker
             if (!isRecording)
             {
                 recordedClicks.Clear();
+                recordedClickCount = 0;
                 isRecording = true;
                 recorder.StartRecording(recordedClicks);
-                UpdateStatus($"Recording clicks...");
+                UpdateStatus("Recording...", System.Drawing.Color.FromArgb(255, 100, 100));
             }
         }
 
@@ -360,7 +401,10 @@ namespace AMCClicker
             {
                 isRecording = false;
                 recorder.StopRecording();
-                UpdateStatus($"Recorded {recordedClicks.Count} clicks");
+                recordedClickCount = recordedClicks.Count;
+                UpdateStatus($"Recorded {recordedClickCount} clicks", System.Drawing.Color.LimeGreen);
+                if (this.Tag is Label infoLabel)
+                    infoLabel.Text = $"Recorded Clicks: {recordedClickCount}";
             }
         }
 
@@ -369,7 +413,7 @@ namespace AMCClicker
             if (recordedClicks.Count > 0 && !isPlaying)
             {
                 isPlaying = true;
-                UpdateStatus("Playing back recording...");
+                UpdateStatus("Playing back...", System.Drawing.Color.FromArgb(100, 200, 50));
                 
                 var worker = new System.ComponentModel.BackgroundWorker();
                 worker.DoWork += (s, e) =>
@@ -384,28 +428,32 @@ namespace AMCClicker
                         System.Threading.Thread.Sleep(click.DelayMs);
                     }
                     isPlaying = false;
-                    this.Invoke(new Action(() => UpdateStatus("Playback complete")));
+                    this.Invoke(new Action(() => UpdateStatus("Playback complete", System.Drawing.Color.LimeGreen)));
                 };
                 
                 worker.RunWorkerAsync();
             }
             else if (recordedClicks.Count == 0)
             {
-                UpdateStatus("No recording available");
+                UpdateStatus("No recording to play", System.Drawing.Color.FromArgb(220, 50, 50));
             }
         }
 
         private void ClearRecording()
         {
             recordedClicks.Clear();
-            UpdateStatus("Recording cleared");
+            recordedClickCount = 0;
+            UpdateStatus("Recording cleared", System.Drawing.Color.FromArgb(220, 150, 50));
+            if (this.Tag is Label infoLabel)
+                infoLabel.Text = $"Recorded Clicks: 0";
         }
 
-        private void UpdateStatus(string status)
+        private void UpdateStatus(string status, System.Drawing.Color color)
         {
             if (statusLabel != null)
             {
                 statusLabel.Text = $"Status: {status}";
+                statusLabel.ForeColor = color;
             }
         }
     }
