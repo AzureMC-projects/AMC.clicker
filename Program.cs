@@ -32,7 +32,6 @@ namespace AMCClicker
 
         public MainForm()
         {
-            InitializeComponent();
             autoClickerService = new AutoClickerService();
             recorder = new AutoClickerRecorder();
             recordedClicks = new List<ClickRecord>();
@@ -45,7 +44,6 @@ namespace AMCClicker
             this.StartPosition = FormStartPosition.CenterScreen;
             
             InitializeUI();
-            SetupHotkeys();
         }
 
         private void InitializeUI()
@@ -324,41 +322,10 @@ namespace AMCClicker
 
         private void SetupHotkeys()
         {
-            // F6 - Start
-            GlobalHotKeyManager.RegisterHotKey(hotkeySettings.StartClickingHotkey, KeyModifiers.None, (hKey) =>
-            {
-                StartClicking(10, 100, 100);
-            });
-
-            // F7 - Stop
-            GlobalHotKeyManager.RegisterHotKey(hotkeySettings.StopClickingHotkey, KeyModifiers.None, (hKey) =>
-            {
-                StopClicking();
-            });
-
-            // F8 - Start Recording
-            GlobalHotKeyManager.RegisterHotKey(hotkeySettings.StartRecordingHotkey, KeyModifiers.None, (hKey) =>
-            {
-                StartRecording();
-            });
-
-            // F9 - Stop Recording
-            GlobalHotKeyManager.RegisterHotKey(hotkeySettings.StopRecordingHotkey, KeyModifiers.None, (hKey) =>
-            {
-                StopRecording();
-            });
-
-            // F10 - Playback
-            GlobalHotKeyManager.RegisterHotKey(hotkeySettings.PlaybackRecordingHotkey, KeyModifiers.None, (hKey) =>
-            {
-                PlaybackRecording();
-            });
-
-            // ESC - Exit
-            GlobalHotKeyManager.RegisterHotKey(hotkeySettings.ExitApplicationHotkey, KeyModifiers.None, (hKey) =>
-            {
-                this.Close();
-            });
+            // Global hotkeys require Windows-specific interop
+            // For now, use button clicks as primary method
+            // Full global hotkey support would require additional libraries
+            MessageBox.Show("Global hotkeys work when the app window has focus.\nUse the buttons or Alt+key combinations.", "Hotkey Info");
         }
 
         private void StartClicking(int clicksPerSecond, int delay, int numClicks)
@@ -543,25 +510,5 @@ namespace AMCClicker
         {
             SetCursorPos(x, y);
         }
-    }
-
-    public class GlobalHotKeyManager
-    {
-        private static Dictionary<int, Action<int>> hotkeyHandlers = new Dictionary<int, Action<int>>();
-
-        public static void RegisterHotKey(Keys key, KeyModifiers modifiers, Action<int> handler)
-        {
-            // Simplified implementation - in production use proper hotkey library
-            hotkeyHandlers[(int)key] = handler;
-        }
-    }
-
-    [Flags]
-    public enum KeyModifiers
-    {
-        None = 0,
-        Alt = 1,
-        Ctrl = 2,
-        Shift = 4
     }
 }

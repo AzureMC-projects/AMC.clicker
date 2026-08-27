@@ -7,10 +7,13 @@
     <StartupObject>AMCClicker.Program</StartupObject>
     <AssemblyName>AMCClicker</AssemblyName>
     <RootNamespace>AMCClicker</RootNamespace>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GlobalHotKey" Version="1.2.1" />
   </ItemGroup>
 
 </Project>
