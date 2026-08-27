@@ -1,0 +1,22 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio
+.vs/
+.vscode/
+*.csproj.user
+*.sln.user
+
+# User-specific files
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Dependencies
+.dotnet/
+.nuget/

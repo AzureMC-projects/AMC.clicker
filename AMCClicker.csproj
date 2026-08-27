@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <StartupObject>AMCClicker.Program</StartupObject>
+    <AssemblyName>AMCClicker</AssemblyName>
+    <RootNamespace>AMCClicker</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GlobalHotKey" Version="1.2.1" />
+  </ItemGroup>
+
+</Project>
